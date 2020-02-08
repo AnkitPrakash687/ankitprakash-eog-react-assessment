@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { filterActions, filterInputActions, 
-  openMetricListActions, resultFilterListActions } from './reducer';
+import {
+  filterActions, filterInputActions,
+  openMetricListActions, resultFilterListActions
+} from './reducer';
 import { Provider, createClient, useQuery } from 'urql';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import OutlinedInput from '@material-ui/core/OutlinedInput'
@@ -25,13 +27,13 @@ const useStyles = makeStyles(theme => ({
     position: 'fixed',
     zIndex: 1,
     opacity: 0.9,
-    margin: theme.spacing(1,1,1,1),
+    margin: theme.spacing(1, 1, 1, 1),
     borderRadius: '5px'
   },
-  chip:{
+  chip: {
     margin: theme.spacing(1)
   },
-  input:{
+  input: {
     width: 800
   }
 }));
@@ -102,19 +104,19 @@ const MetricFilter = () => {
 
     const { getMetrics } = data;
     let filterSet = new Set(filters)
-        
+
     let result = getMetrics
-                .filter((item:string) => { return !filterSet.has(item) })
-    dispatch(resultFilterListActions.resultFilterList({resultFilterList:result}));
+      .filter((item: string) => { return !filterSet.has(item) })
+    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: result }));
 
   }, [dispatch, data, error, filters]);
 
   const handleChange = (name: string) => (event: any) => {
     let filterInput = event.target.value
     if (name === 'filterInput') {
-      if(filterInput !== ' '){
-      let result = data.getMetrics.filter((item:string) => { return item.includes(filterInput) })
-      dispatch(resultFilterListActions.resultFilterList({resultFilterList:result}));
+      if (filterInput !== ' ') {
+        let result = data.getMetrics.filter((item: string) => { return item.includes(filterInput) })
+        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: result }));
       }
       dispatch(filterInputActions.filterInput({ filterInput: event.target.value }))
     }
@@ -131,7 +133,7 @@ const MetricFilter = () => {
     dispatch(filterActions.addFilter({ selectedFilter: name }))
     const { getMetrics } = data;
     console.log('getMetrics', getMetrics)
-    dispatch(resultFilterListActions.resultFilterList({resultFilterList: getMetrics}));
+    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getMetrics }));
     dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
   }
 
@@ -146,7 +148,7 @@ const MetricFilter = () => {
     <OutlinedInput
       id="filled-adornment-weight"
       className={classes.input}
-      
+
       value={filterInput}
       disabled
       multiline
@@ -171,11 +173,11 @@ const MetricFilter = () => {
       inputProps={{
         'aria-label': 'weight',
       }}
-    > 
+    >
     </OutlinedInput>
 
     <List className={classes.list}
-      style={{ display: (openMetricList && resultFilterList.length>0) ? 'block' : 'none' }}>
+      style={{ display: (openMetricList && resultFilterList.length > 0) ? 'block' : 'none' }}>
       {resultFilterList.map((f: string, index: number) => {
         return <ListItem button onClick={handleClickList(f)} key={index}>
           <ListItemText
@@ -184,9 +186,5 @@ const MetricFilter = () => {
         </ListItem>
       })}
     </List>
-
-
-
-
   </div>;
 };
