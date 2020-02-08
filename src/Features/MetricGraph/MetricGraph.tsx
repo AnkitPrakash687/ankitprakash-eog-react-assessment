@@ -7,6 +7,8 @@ import MetricCard from '../../components/MetricCard';
 import LineGraph from '../../components/LineGraph';
 import Grid from '@material-ui/core/Grid';
 import grey from '@material-ui/core/colors/grey';
+import Box from '@material-ui/core/Box';
+
 const client = createClient({
   url: 'https://react.eogresources.com/graphql',
 });
@@ -46,10 +48,10 @@ const MetricGraph = () => {
         {filters.map((filter, index) => {
           if (filter !== '') {
             return (
-              <Grid item md={6} key={index}>
+              <Box key={index} display="flex" m={2} flexDirection="column">
                 <MetricCard metricName={filter} />
                 <LineGraph metricName={filter} />
-              </Grid>
+              </Box>
             );
           }
           return false;

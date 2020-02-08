@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { Provider, createClient, useQuery } from 'urql';
 import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 const client = createClient({
@@ -13,11 +12,10 @@ type MetricCardProps = {
   metricName: string;
 };
 
-const useStyles = makeStyles({
-  root: {
-    minWidth: 180,
-    maxWidth: 300,
-    height: 100,
+const useStyles = makeStyles(theme => ({
+  paper: {
+    padding: theme.spacing(1),
+    maxWidth: '12rem',
   },
 
   title: {
@@ -28,7 +26,7 @@ const useStyles = makeStyles({
     fontSize: 30,
     fontWeight: 500,
   },
-});
+}));
 
 const query = `
 query($metricName: String!) {
@@ -66,14 +64,12 @@ const SimpleCard = (props: any) => {
   return (
     <div>
       {data && (
-        <Card className={classes.root}>
-          <CardContent>
-            <Typography className={classes.title}>{props.metricName}</Typography>
-            <Typography className={classes.body} gutterBottom>
-              {data.getLastKnownMeasurement.value + ' ' + data.getLastKnownMeasurement.unit}
-            </Typography>
-          </CardContent>
-        </Card>
+        <Paper className={classes.paper}>
+          <Typography className={classes.title}>{props.metricName}</Typography>
+          <Typography className={classes.body} gutterBottom>
+            {data.getLastKnownMeasurement.value + ' ' + data.getLastKnownMeasurement.unit}
+          </Typography>
+        </Paper>
       )}
     </div>
   );

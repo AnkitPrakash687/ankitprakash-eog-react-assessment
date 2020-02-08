@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { filterActions, filterInputActions, openMetricListActions, resultFilterListActions } from './reducer';
 import { Provider, createClient, useQuery } from 'urql';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,7 +12,6 @@ import { IState } from '../../store';
 import Box from '@material-ui/core/Box';
 import grey from '@material-ui/core/colors/grey';
 import blue from '@material-ui/core/colors/blue';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const client = createClient({
   url: 'https://react.eogresources.com/graphql',
@@ -75,13 +72,6 @@ const getFilters = (state: IState) => {
   };
 };
 
-const getFilterInput = (state: IState) => {
-  const { filterInput } = state.filterInput;
-  return {
-    filterInput,
-  };
-};
-
 const getOpenMetricList = (state: IState) => {
   const { openMetricList } = state.openMetricList;
   return {
@@ -109,7 +99,6 @@ const MetricFilter = () => {
   const filterInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
   const { filters } = useSelector(getFilters);
-  const { filterInput } = useSelector(getFilterInput);
   const { openMetricList } = useSelector(getOpenMetricList);
   const { resultFilterList } = useSelector(getResultFilterList);
 
@@ -119,12 +108,25 @@ const MetricFilter = () => {
 
   const { fetching, data, error } = result;
 
+  
   useEffect(() => {
     document.addEventListener('keyup', keyUpFunc, false);
-    console.log(filters);
-  }, []);
+  });
 
   useEffect(() => {
+    const getFilteredList = (filterInput?: string) => {
+      let filterSet = new Set(filters);
+  
+      let result = data.getMetrics.filter((item: string) => {
+        return !filterSet.has(item);
+      });
+      if (filterInput && filterInput !== ' ') {
+        return result.filter((item: string) => {
+          return item.includes(filterInput);
+        });
+      }
+      return result;
+    };
     if (error) {
       dispatch(filterActions.filterApiErrorReceived({ error: error.message }));
       return;
@@ -140,30 +142,28 @@ const MetricFilter = () => {
     }
   };
 
-  const getFilteredList = (filterInput?: string) => {
-    let filterSet = new Set(filters);
-
-    let result = data.getMetrics.filter((item: string) => {
-      return !filterSet.has(item);
-    });
-    if (filterInput && filterInput !== ' ') {
-      return result.filter((item: string) => {
-        return item.includes(filterInput);
-      });
-    }
-    return result;
-  };
-
   const handleKeyUp = (name: string) => (event: any) => {
     if (event.keyCode === 46) {
       let name = filters[filters.length - 1];
-      console.log(filterInput, name);
       if (name !== ' ') {
         dispatch(filterActions.removeFilter({ selectedFilter: name }));
       }
     }
   };
   const handleChange = (name: string) => (event: any) => {
+    const getFilteredList = (filterInput?: string) => {
+      let filterSet = new Set(filters);
+  
+      let result = data.getMetrics.filter((item: string) => {
+        return !filterSet.has(item);
+      });
+      if (filterInput && filterInput !== ' ') {
+        return result.filter((item: string) => {
+          return item.includes(filterInput);
+        });
+      }
+      return result;
+    };
     let filterInput = event.target.value;
     if (name === 'filterInput') {
       if (filterInput !== ' ') {
@@ -201,7 +201,6 @@ const MetricFilter = () => {
   // };
 
   const handleDeleteList = (name: string) => (event: any) => {
-    console.log(name);
     dispatch(filterActions.removeFilter({ selectedFilter: name }));
     if (name === 'clearAll') {
       dispatch(filterActions.clearAll({ selectedFilter: name }));
@@ -217,8 +216,8 @@ const MetricFilter = () => {
           {filters.map((f: string, index: number) => {
             if (f !== '') {
               return (
-                <Box>
-                  <Chip className={classes.chip} size="small" onDelete={handleDeleteList(f)} label={f} key={index} />
+                <Box key={index}>
+                  <Chip className={classes.chip} size="small" onDelete={handleDeleteList(f)} label={f} />
                 </Box>
               );
             }
