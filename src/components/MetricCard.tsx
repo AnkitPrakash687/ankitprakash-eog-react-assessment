@@ -9,6 +9,9 @@ const client = createClient({
   url: 'https://react.eogresources.com/graphql',
 });
 
+type MetricCardProps = {
+    metricName: string,
+}
 
 const useStyles = makeStyles({
     root: {
@@ -37,19 +40,19 @@ query($metricName: String!) {
 }
 `;
 
-export default (props:any) => {
+export default ({ metricName }: MetricCardProps) => {
   return (
     <Provider value={client}>
-      <SimpleCard metricName={props.metricName}/>
+      <SimpleCard metricName={metricName}/>
     </Provider>
   );
 };
+
 
 const SimpleCard = (props:any) => {
   const classes = useStyles()
   // Default to houston
 
-  
   const [{  data }, executeQuery] = useQuery({
     query:query,
     variables:{
@@ -59,22 +62,19 @@ const SimpleCard = (props:any) => {
   });
 
   useEffect(() => { 
-        executeQuery( {requestPolicy: 'network-only', pollInterval: 1000})  
+        executeQuery( {requestPolicy: 'cache-and-network', pollInterval: 1300})  
   }, [executeQuery]);
 
-
-  if(data){
-    return <Card className={classes.root}>
-    <CardContent>
-      <Typography className={classes.title} >
-        {props.metricName}
-      </Typography>
-      <Typography className={classes.body} gutterBottom>
-        {data.getLastKnownMeasurement.value + ' '+data.getLastKnownMeasurement.unit} 
-      </Typography>
-    </CardContent>
-  </Card>
-  
- }
-  return <div></div>
+  return <div>{
+      data && <Card className={classes.root}>
+      <CardContent>
+        <Typography className={classes.title} >
+          {props.metricName}
+        </Typography>
+        <Typography className={classes.body} gutterBottom>
+          {data.getLastKnownMeasurement.value + ' '+data.getLastKnownMeasurement.unit} 
+        </Typography>
+      </CardContent>
+    </Card>
+}</div>
 };

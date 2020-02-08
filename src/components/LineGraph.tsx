@@ -35,7 +35,7 @@ export default ({ metricName }: LineGraphProps) => {
     });
 
     useEffect(() => {
-        executeQuery({ requestPolicy: 'cache-and-network', pollInterval: 3000 })
+        executeQuery({ requestPolicy: 'cache-and-network', pollInterval: 1300 })
     }, [executeQuery])
 
     if (data) {

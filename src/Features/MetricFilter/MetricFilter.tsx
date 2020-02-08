@@ -22,9 +22,9 @@ const client = createClient({
 
 const useStyles = makeStyles(theme => ({
   list: {
-    width: '20rem',
+    width: '50rem',
     background: 'white',
-    position: 'fixed',
+    position: 'absolute',
     zIndex: 1,
     opacity: 0.9,
     margin: theme.spacing(1, 1, 1, 1),
@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1)
   },
   input: {
-    width: 800
+    width: 1000
   }
 }));
 const query = `
