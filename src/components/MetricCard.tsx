@@ -9,6 +9,7 @@ const client = createClient({
   url: 'https://react.eogresources.com/graphql',
 });
 
+
 const useStyles = makeStyles({
     root: {
       minWidth: 180,
@@ -25,6 +26,7 @@ const useStyles = makeStyles({
         fontWeight: 500
       },
   });
+
 const query = `
 query($metricName: String!) {
   getLastKnownMeasurement(metricName: $metricName) {
