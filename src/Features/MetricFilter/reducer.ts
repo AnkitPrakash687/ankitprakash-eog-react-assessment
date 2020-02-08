@@ -19,16 +19,16 @@ export type ResultFilterList = {
 
 const initialState = {
   filters: {
-    filters: [' ']
+    filters: ['']
   },
   filterInput: {
-    filterInput: ' '
+    filterInput: ''
   },
   openMetricList: {
     openMetricList: false
   },
   resultFilterList:{
-    resultFilterList: [' ']
+    resultFilterList: ['']
   }
 }
 
@@ -44,6 +44,9 @@ const filterSlice = createSlice({
       const { selectedFilter } = action.payload;
       state.filters = state.filters
         .filter(filter => { if (filter !== selectedFilter) return true; return false})
+    },
+    clearAll: (state, action: PayloadAction<SelectedFilter>) => {
+      state.filters = []
     },
     filterApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },

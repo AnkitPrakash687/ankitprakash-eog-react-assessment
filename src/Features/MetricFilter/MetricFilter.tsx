@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { filterActions, filterInputActions, openMetricListActions, resultFilterListActions } from './reducer';
 import { Provider, createClient, useQuery } from 'urql';
@@ -11,12 +11,10 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Chip from '../../components/Chip';
 import { makeStyles } from '@material-ui/core/styles';
 import { IState } from '../../store';
-import Down from '@material-ui/icons/ArrowDropDownRounded';
-import Modal from '@material-ui/core/Modal';
 import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
 import grey from '@material-ui/core/colors/grey';
 import blue from '@material-ui/core/colors/blue';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const client = createClient({
   url: 'https://react.eogresources.com/graphql',
@@ -24,7 +22,7 @@ const client = createClient({
 
 const useStyles = makeStyles(theme => ({
   list: {
-    width: '50rem',
+    width: '20rem',
     background: 'white',
     position: 'absolute',
     zIndex: 1,
@@ -33,16 +31,19 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '5px',
   },
   chip: {
-    margin: theme.spacing(1),
+    margin: '5px',
   },
-  input: {
-    width: 1000,
+  filterInput: {
+    padding: theme.spacing(1),
+    border: 'none',
+    backgroundColor: 'transparent',
+    '&:focus': {
+      outline: 'none !important',
+    },
   },
   searchBox: {
     minHeight: 50,
-    minWidth: 400,
-    maxWidth: 800,
-    padding: theme.spacing(1),
+    width: '20rem',
     borderColor: grey[400],
     borderRadius: 5,
     borderWidth: 1,
@@ -51,6 +52,13 @@ const useStyles = makeStyles(theme => ({
       background: grey[200],
       borderColor: blue[300],
     },
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  selectedFilterContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    flexDirection: 'row',
   },
 }));
 
@@ -98,8 +106,7 @@ export default () => {
 
 const MetricFilter = () => {
   const classes = useStyles();
-  // Default to houston
-
+  const filterInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
   const { filters } = useSelector(getFilters);
   const { filterInput } = useSelector(getFilterInput);
@@ -111,31 +118,57 @@ const MetricFilter = () => {
   });
 
   const { fetching, data, error } = result;
+
   useEffect(() => {
-    console.log('useEffect');
+    document.addEventListener('keyup', keyUpFunc, false);
+    console.log(filters);
+  }, []);
+
+  useEffect(() => {
     if (error) {
       dispatch(filterActions.filterApiErrorReceived({ error: error.message }));
       return;
     }
     if (!data) return;
 
-    const { getMetrics } = data;
-    let filterSet = new Set(filters);
-
-    let result = getMetrics.filter((item: string) => {
-      return !filterSet.has(item);
-    });
-    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: result }));
+    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getFilteredList() }));
   }, [dispatch, data, error, filters]);
 
+  const keyUpFunc = (event: any) => {
+    if (event.keyCode === 27) {
+      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
+    }
+  };
+
+  const getFilteredList = (filterInput?: string) => {
+    let filterSet = new Set(filters);
+
+    let result = data.getMetrics.filter((item: string) => {
+      return !filterSet.has(item);
+    });
+    if (filterInput && filterInput !== ' ') {
+      return result.filter((item: string) => {
+        return item.includes(filterInput);
+      });
+    }
+    return result;
+  };
+
+  const handleKeyUp = (name: string) => (event: any) => {
+    if (event.keyCode === 46) {
+      let name = filters[filters.length - 1];
+      console.log(filterInput, name);
+      if (name !== ' ') {
+        dispatch(filterActions.removeFilter({ selectedFilter: name }));
+      }
+    }
+  };
   const handleChange = (name: string) => (event: any) => {
     let filterInput = event.target.value;
     if (name === 'filterInput') {
       if (filterInput !== ' ') {
-        let result = data.getMetrics.filter((item: string) => {
-          return item.includes(filterInput);
-        });
-        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: result }));
+        dispatch(openMetricListActions.openMetricList({ openMetricList: true }));
+        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getFilteredList(filterInput) }));
       }
       dispatch(filterInputActions.filterInput({ filterInput: event.target.value }));
     }
@@ -143,49 +176,79 @@ const MetricFilter = () => {
 
   const handleClick = (name: string) => (event: any) => {
     if (name === 'filterInput') {
+      if (filterInputRef && filterInputRef.current) {
+        filterInputRef.current.focus();
+      }
       dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
     }
   };
 
   const handleClickList = (name: string) => (event: any) => {
-    console.log(name);
+    dispatch(filterInputActions.filterInput({ filterInput: '' }));
     dispatch(filterActions.addFilter({ selectedFilter: name }));
-    const { getMetrics } = data;
-    console.log('getMetrics', getMetrics);
-    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getMetrics }));
+    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: data.getMetrics }));
     dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
-  };
 
-  const handleClose = (name: string) => (event: any) => {
-    if (name === 'list') {
-      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
+    if (filterInputRef && filterInputRef.current) {
+      filterInputRef.current.focus();
     }
   };
+
+  // const handleClose = (name: string) => (event: any) => {
+  //   if (name === 'list') {
+  //     dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
+  //   }
+  // };
 
   const handleDeleteList = (name: string) => (event: any) => {
     console.log(name);
     dispatch(filterActions.removeFilter({ selectedFilter: name }));
+    if (name === 'clearAll') {
+      dispatch(filterActions.clearAll({ selectedFilter: name }));
+    }
   };
 
   if (fetching) return <LinearProgress />;
 
   return (
     <div>
-      <Box display="flex" className={classes.searchBox} onClick={handleClick('filterInput')}>
-        <Grid container style={{ width: 250 }} direction="row">
+      <Box id="searchBox" className={classes.searchBox} onClick={handleClick('filterInput')}>
+        <Box className={classes.selectedFilterContainer}>
           {filters.map((f: string, index: number) => {
-            if (f !== ' ') {
+            if (f !== '') {
               return (
-                <Grid item md={6}>
+                <Box>
                   <Chip className={classes.chip} size="small" onDelete={handleDeleteList(f)} label={f} key={index} />
-                </Grid>
+                </Box>
               );
             }
             return false;
           })}
-        </Grid>
-      </Box>
+          {filters.length > 1 && (
+            <Box>
+              <Chip
+                className={classes.chip}
+                size="small"
+                color="secondary"
+                onDelete={handleDeleteList('clearAll')}
+                label={'clear all'}
+              />
+            </Box>
+          )}
 
+          <Box justifyContent="center">
+            <input
+              className={classes.filterInput}
+              ref={filterInputRef}
+              onChange={handleChange('filterInput')}
+              onKeyUp={handleKeyUp('filterInput')}
+              type="text"
+              placeholder="Search Metrics..."
+            ></input>
+          </Box>
+        </Box>
+      </Box>
+      <label htmlFor="searchBox">press delete to remove last filters</label>
       <List className={classes.list} style={{ display: openMetricList ? 'block' : 'none' }}>
         {resultFilterList.length > 0 ? (
           resultFilterList.map((f: string, index: number) => {
