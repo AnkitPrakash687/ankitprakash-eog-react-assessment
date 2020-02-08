@@ -108,7 +108,6 @@ const MetricFilter = () => {
 
   const { fetching, data, error } = result;
 
-  
   useEffect(() => {
     document.addEventListener('keyup', keyUpFunc, false);
   });
@@ -116,7 +115,7 @@ const MetricFilter = () => {
   useEffect(() => {
     const getFilteredList = (filterInput?: string) => {
       let filterSet = new Set(filters);
-  
+
       let result = data.getMetrics.filter((item: string) => {
         return !filterSet.has(item);
       });
@@ -153,7 +152,7 @@ const MetricFilter = () => {
   const handleChange = (name: string) => (event: any) => {
     const getFilteredList = (filterInput?: string) => {
       let filterSet = new Set(filters);
-  
+
       let result = data.getMetrics.filter((item: string) => {
         return !filterSet.has(item);
       });

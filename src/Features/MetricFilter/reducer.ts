@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from 'redux-starter-kit';
 
 export type SelectedFilter = {
-  selectedFilter: string
-}
+  selectedFilter: string;
+};
 export type ApiErrorAction = {
   error: string;
 };
@@ -15,22 +15,22 @@ export type OpenMetricList = {
 
 export type ResultFilterList = {
   resultFilterList: string[];
-}
+};
 
 const initialState = {
   filters: {
-    filters: ['']
+    filters: [''],
   },
   filterInput: {
-    filterInput: ''
+    filterInput: '',
   },
   openMetricList: {
-    openMetricList: false
+    openMetricList: false,
   },
-  resultFilterList:{
-    resultFilterList: ['']
-  }
-}
+  resultFilterList: {
+    resultFilterList: [''],
+  },
+};
 
 const filterSlice = createSlice({
   name: 'filter',
@@ -38,15 +38,17 @@ const filterSlice = createSlice({
   reducers: {
     addFilter: (state, action: PayloadAction<SelectedFilter>) => {
       const { selectedFilter } = action.payload;
-      state.filters.push(selectedFilter)
+      state.filters.push(selectedFilter);
     },
     removeFilter: (state, action: PayloadAction<SelectedFilter>) => {
       const { selectedFilter } = action.payload;
-      state.filters = state.filters
-        .filter(filter => { if (filter !== selectedFilter) return true; return false})
+      state.filters = state.filters.filter(filter => {
+        if (filter !== selectedFilter) return true;
+        return false;
+      });
     },
     clearAll: (state, action: PayloadAction<SelectedFilter>) => {
-      state.filters = []
+      state.filters = [];
     },
     filterApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },
@@ -58,7 +60,7 @@ const filterInputSlice = createSlice({
   reducers: {
     filterInput: (state, action: PayloadAction<FilterInput>) => {
       const { filterInput } = action.payload;
-      state.filterInput = filterInput
+      state.filterInput = filterInput;
     },
   },
 });
@@ -69,7 +71,7 @@ const openMetricListSlice = createSlice({
   reducers: {
     openMetricList: (state, action: PayloadAction<OpenMetricList>) => {
       const { openMetricList } = action.payload;
-      state.openMetricList = openMetricList
+      state.openMetricList = openMetricList;
     },
   },
 });
@@ -80,12 +82,10 @@ const resultFilterListSlice = createSlice({
   reducers: {
     resultFilterList: (state, action: PayloadAction<ResultFilterList>) => {
       const { resultFilterList } = action.payload;
-      state.resultFilterList = resultFilterList
+      state.resultFilterList = resultFilterList;
     },
   },
 });
-
-
 
 export const filterReducer = filterSlice.reducer;
 export const filterActions = filterSlice.actions;
