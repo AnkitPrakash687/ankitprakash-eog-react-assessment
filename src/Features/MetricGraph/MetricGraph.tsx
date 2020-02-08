@@ -5,7 +5,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { IState } from '../../store';
 import MetricCard from '../../components/MetricCard';
 import LineGraph from '../../components/LineGraph';
-import Grid from '@material-ui/core/Grid';
 import grey from '@material-ui/core/colors/grey';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';

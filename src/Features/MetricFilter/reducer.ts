@@ -48,7 +48,7 @@ const filterSlice = createSlice({
       });
     },
     clearAll: (state, action: PayloadAction<SelectedFilter>) => {
-      state.filters = [];
+      state.filters = [''];
     },
     filterApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },
