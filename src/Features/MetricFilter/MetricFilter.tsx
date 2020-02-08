@@ -177,14 +177,23 @@ const MetricFilter = () => {
     </OutlinedInput>
 
     <List className={classes.list}
-      style={{ display: (openMetricList && resultFilterList.length > 0) ? 'block' : 'none' }}>
-      {resultFilterList.map((f: string, index: number) => {
+      style={{ display: (openMetricList) ? 'block' : 'none' }}>
+      {
+      resultFilterList.length > 0?
+      resultFilterList.map((f: string, index: number) => {
         return <ListItem button onClick={handleClickList(f)} key={index}>
           <ListItemText
             primary={f}
           />
         </ListItem>
-      })}
+      }):
+      <ListItem >
+          <ListItemText
+            primary={'No more options'}
+          />
+        </ListItem>
+    
+    }
     </List>
   </div>;
 };
