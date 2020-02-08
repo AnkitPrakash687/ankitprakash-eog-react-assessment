@@ -8,6 +8,7 @@ import LineGraph from '../../components/LineGraph';
 import Grid from '@material-ui/core/Grid';
 import grey from '@material-ui/core/colors/grey';
 import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
 
 const client = createClient({
   url: 'https://react.eogresources.com/graphql',
@@ -43,20 +44,26 @@ const MetricGraph = () => {
   const { filters } = useSelector(getFilters);
 
   return (
-    <div>
-      <Grid container className={classes.root}>
-        {filters.map((filter, index) => {
-          if (filter !== '') {
-            return (
-              <Box key={index} display="flex" m={2} flexDirection="column">
-                <MetricCard metricName={filter} />
-                <LineGraph metricName={filter} />
-              </Box>
-            );
-          }
-          return false;
-        })}
-      </Grid>
-    </div>
+    <>
+      {filters.length > 1 ? (
+        <Grid container className={classes.root}>
+          {filters.map((filter, index) => {
+            if (filter !== '') {
+              return (
+                <Box key={index} display="flex" m={2} flexDirection="column">
+                  <MetricCard metricName={filter} />
+                  <LineGraph metricName={filter} />
+                </Box>
+              );
+            }
+            return false;
+          })}
+        </Grid>
+      ) : (
+        <Box style={{ width: window.innerWidth }} display="flex" justifyContent="center" alignItems="center">
+          <Typography variant="h6">NO FILTER SELECTED</Typography>
+        </Box>
+      )}
+    </>
   );
 };
