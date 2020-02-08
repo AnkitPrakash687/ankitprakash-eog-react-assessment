@@ -19,7 +19,6 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     background: grey[200],
     minHeight: window.innerHeight,
-    minWidth: window.innerWidth,
   },
 }));
 
@@ -46,7 +45,7 @@ const MetricGraph = () => {
   return (
     <>
       {filters.length > 1 ? (
-        <Grid container className={classes.root}>
+        <Box display="flex" m={2} flexDirection="row" flexWrap="wrap" className={classes.root}>
           {filters.map((filter, index) => {
             if (filter !== '') {
               return (
@@ -58,7 +57,7 @@ const MetricGraph = () => {
             }
             return false;
           })}
-        </Grid>
+        </Box>
       ) : (
         <Box style={{ width: window.innerWidth }} display="flex" justifyContent="center" alignItems="center">
           <Typography variant="h6">NO FILTER SELECTED</Typography>

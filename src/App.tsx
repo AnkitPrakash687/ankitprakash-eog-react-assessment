@@ -5,7 +5,7 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import 'react-toastify/dist/ReactToastify.css';
 import MyApp from './MyApp'
-
+import Header from './components/Header'
 const store = createStore();
 const theme = createMuiTheme({
   palette: {
@@ -25,6 +25,7 @@ const App = () => (
   <MuiThemeProvider theme={theme}>
     <CssBaseline />
     <Provider store={store}>
+      <Header/>
       <MyApp/>
     </Provider>
   </MuiThemeProvider>
