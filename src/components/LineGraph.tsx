@@ -6,7 +6,11 @@ type LineGraphProps = {
   metricName: string;
 };
 
-const timestamp = new Date().getTime() - 3600000 / 2;
+const SECONDS = 30 * 60,
+  RATE = 1.3;
+const dataLength = Math.floor(SECONDS / RATE);
+const timestamp = new Date().getTime() - SECONDS * 1000;
+
 const convertToTime = (time: number) => {
   let hrs = new Date(time).getHours().toString(),
     min = new Date(time).getMinutes().toString();
@@ -24,6 +28,7 @@ query($metricName: String!, $after: Timestamp) {
     }
 }
 `;
+
 export default ({ metricName }: LineGraphProps) => {
   const [{ data }, executeQuery] = useQuery({
     query: query,
@@ -42,7 +47,12 @@ export default ({ metricName }: LineGraphProps) => {
       return { at: convertToTime(m.at), metricName: m.metric, value: m.value };
     });
     return (
-      <LineChart width={500} height={300} data={metrics} margin={{ top: 5, right: 20, bottom: 5, left: -5 }}>
+      <LineChart
+        width={500}
+        height={300}
+        data={metrics.slice(dataLength * -1)}
+        margin={{ top: 5, right: 20, bottom: 5, left: -5 }}
+      >
         <Line isAnimationActive={false} type="linear" dot={false} dataKey="value" stroke="#8884d8" />
         <XAxis minTickGap={10} type="category" domain={['auto', 'auto']} dataKey="at" />
         <YAxis domain={['auto', 'auto']} />
