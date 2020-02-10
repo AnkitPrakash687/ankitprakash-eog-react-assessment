@@ -13,9 +13,9 @@ const timestamp = new Date().getTime() - SECONDS * 1000;
 
 const convertToTime = (time: number) => {
   let hrs = new Date(time).getHours().toString(),
-    min = new Date(time).getMinutes().toString();
-  //sec = new Date(time).getSeconds().toString()
-  return hrs + ':' + min;
+    min = new Date(time).getMinutes().toString(),
+    sec = new Date(time).getSeconds().toString();
+  return hrs + ':' + min + ':' + sec;
 };
 
 const query = `
@@ -39,7 +39,7 @@ export default ({ metricName }: LineGraphProps) => {
   });
 
   useEffect(() => {
-    executeQuery({ requestPolicy: 'cache-and-network', pollInterval: 1300 });
+    executeQuery({ requestPolicy: 'cache-and-network', pollInterval: 2500 });
   }, [executeQuery]);
 
   if (data) {
@@ -49,7 +49,7 @@ export default ({ metricName }: LineGraphProps) => {
     return (
       <LineChart
         width={500}
-        height={300}
+        height={350}
         data={metrics.slice(dataLength * -1)}
         margin={{ top: 5, right: 20, bottom: 5, left: -5 }}
       >
