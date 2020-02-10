@@ -54,11 +54,11 @@ export default ({ metricName }: LineGraphProps) => {
         data={metrics.slice(dataLength * -1)}
         margin={{ top: 5, right: 20, bottom: 5, left: -5 }}
       >
-        <Line  isAnimationActive={false} type="linear" dot={false} dataKey="value" stroke="#8884d8" />
+        <Line isAnimationActive={false} type="linear" dot={false} dataKey="value" stroke="#8884d8" />
         <XAxis minTickGap={40} interval="preserveEnd" type="category" dataKey="at" />
         <YAxis domain={['auto', 'auto']} />
         <YAxis />
-        <Tooltip />
+        <Tooltip animationDuration={500} />
       </LineChart>
     );
   }
