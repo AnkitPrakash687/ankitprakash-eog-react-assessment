@@ -1,19 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { filterActions, filterInputActions, openMetricListActions, resultFilterListActions } from './reducer';
+import { filterActions } from './reducer';
 import { Provider, createClient, useQuery } from 'urql';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import Chip from '../../components/Chip';
 import { makeStyles } from '@material-ui/core/styles';
 import { IState } from '../../store';
 import Box from '@material-ui/core/Box';
 import grey from '@material-ui/core/colors/grey';
 import blue from '@material-ui/core/colors/blue';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
 const client = createClient({
   url: 'https://react.eogresources.com/graphql',
@@ -75,20 +70,6 @@ const getFilters = (state: IState) => {
   };
 };
 
-const getOpenMetricList = (state: IState) => {
-  const { openMetricList } = state.openMetricList;
-  return {
-    openMetricList,
-  };
-};
-
-const getResultFilterList = (state: IState) => {
-  const { resultFilterList } = state.resultFilterList;
-  return {
-    resultFilterList,
-  };
-};
-
 export default () => {
   return (
     <Provider value={client}>
@@ -102,8 +83,6 @@ const MetricFilter = () => {
   const filterInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
   const { filters } = useSelector(getFilters);
-  const { openMetricList } = useSelector(getOpenMetricList);
-  const { resultFilterList } = useSelector(getResultFilterList);
 
   const [result] = useQuery({
     query,
@@ -111,43 +90,19 @@ const MetricFilter = () => {
 
   const { fetching, data, error } = result;
 
-  useEffect(() => {
-    // document.addEventListener('keyup', keyUpFunc, false);
-    if (openMetricList) {
-      setTimeout(() => {
-        if (filterInputRef && filterInputRef.current) {
-          filterInputRef.current.focus();
-        }
-      }, 500);
-    }
-  }, [openMetricList]);
+  // useEffect(() => {
+  //     console.log(data.getMetrics)
+  //  dispatch(filterActions.initializeFilterNotSelected({metrics: data.getMetrics}));
+
+  // }, []);
 
   useEffect(() => {
-    const getFilteredList = (filterInput?: string) => {
-      let filterSet = new Set(filters);
-
-      let result = data.getMetrics.filter((item: string) => {
-        return !filterSet.has(item);
-      });
-      if (filterInput && filterInput !== ' ') {
-        return result.filter((item: string) => {
-          return item.includes(filterInput);
-        });
-      }
-      return result;
-    };
     if (error) {
       dispatch(filterActions.filterApiErrorReceived({ error: error.message }));
       return;
     }
     if (!data) return;
-
-    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getFilteredList() }));
-  }, [dispatch, data, error, filters]);
-
-  // const keyUpFunc = (event: any) => {
-
-  // };
+  }, [dispatch, data, error]);
 
   const handleKeyUp = (name: string) => (event: any) => {
     if (event.keyCode === 46) {
@@ -156,91 +111,29 @@ const MetricFilter = () => {
         dispatch(filterActions.removeFilter({ selectedFilter: name }));
       }
     }
-    if (event.keyCode === 27) {
-      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
-    }
-  };
-  const handleChange = (name: string) => (event: any) => {
-    const getFilteredList = (filterInput?: string) => {
-      let filterSet = new Set(filters);
-
-      let result = data.getMetrics.filter((item: string) => {
-        return !filterSet.has(item);
-      });
-      if (filterInput && filterInput !== ' ') {
-        return result.filter((item: string) => {
-          return item.includes(filterInput);
-        });
-      }
-      return result;
-    };
-
-    if (name === 'filterInput') {
-      let filterInput = event.target.value;
-      if (filterInput !== ' ') {
-        dispatch(openMetricListActions.openMetricList({ openMetricList: true }));
-        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getFilteredList(filterInput) }));
-      }
-      dispatch(filterInputActions.filterInput({ filterInput: event.target.value }));
-    } else if (name === 'list') {
-      let selectedMetric = event.target.value;
-      if (selectedMetric && selectedMetric !== '') {
-        dispatch(filterInputActions.filterInput({ filterInput: '' }));
-        dispatch(filterActions.addFilter({ selectedFilter: selectedMetric }));
-        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: data.getMetrics }));
-        dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
-
-        if (filterInputRef && filterInputRef.current) {
-          filterInputRef.current.focus();
-        }
-      }
-    }
   };
 
-  const handleClick = (name: string) => (event: any) => {
-    if (name === 'filterInput') {
-      if (filterInputRef && filterInputRef.current) {
-        filterInputRef.current.focus();
-      }
-      dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
+  const focusInput = () => {
+    if (filterInputRef && filterInputRef.current) {
+      filterInputRef.current.value = '';
+      filterInputRef.current.focus();
     }
   };
 
   const handleClickList = (event: any) => {
-    console.log('working');
-    event.preventDefault();
-    if (event.target.value) {
-      if (event.target.value === 'No options') {
-        if (filterInputRef && filterInputRef.current) {
-          filterInputRef.current.value = '';
-          filterInputRef.current.focus();
-        }
-      }
-      console.log(event.target.value);
-      if (resultFilterList.includes(event.target.value)) {
-        dispatch(filterInputActions.filterInput({ filterInput: '' }));
-        dispatch(filterActions.addFilter({ selectedFilter: event.target.value }));
-        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: data.getMetrics }));
-        dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
-
-        if (filterInputRef && filterInputRef.current) {
-          filterInputRef.current.value = '';
-          filterInputRef.current.focus();
-        }
-      }
-    }
-  };
-
-  const handleClose = (name: string) => (event: any) => {
-    if (name === 'list') {
-      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
+    let filterInput = event.target.value;
+    if (data.getMetrics.includes(event.target.value)) {
+      dispatch(filterActions.addFilter({ selectedFilter: event.target.value }));
+      focusInput();
+    } else if (filterInput === 'No options') {
+      focusInput();
     }
   };
 
   const handleDeleteList = (name: string) => (event: any) => {
     dispatch(filterActions.removeFilter({ selectedFilter: name }));
     if (name === 'clearAll') {
-      dispatch(filterActions.clearAll({ selectedFilter: name }));
+      dispatch(filterActions.clearAll());
     }
   };
 
@@ -248,7 +141,7 @@ const MetricFilter = () => {
 
   return (
     <div>
-      <Box id="searchBox" alignItems="flex-end" className={classes.searchBox} onClick={handleClick('filterInput')}>
+      <Box id="searchBox" alignItems="flex-end" className={classes.searchBox}>
         <Box className={classes.selectedFilterContainer}>
           {filters.map((f: string, index: number) => {
             if (f !== '') {
@@ -290,62 +183,15 @@ const MetricFilter = () => {
         <label htmlFor="searchBox">press delete to remove last filters</label>
       </Box>
       <datalist id="metricList">
-        {resultFilterList.length > 0 ? (
-          resultFilterList.map((f: string, index: number) => {
-            return <option value={f} key={index}></option>;
+        {data.getMetrics.length > filters.length - 1 ? (
+          data.getMetrics.map((f: string, index: number) => {
+            if (!filters.includes(f)) return <option value={f} key={index}></option>;
+            return null;
           })
         ) : (
           <option value={'No options'} key={0}></option>
         )}
       </datalist>
-
-      {/* <List className={classes.list} style={{ display: openMetricList ? 'block' : 'none' }}>
-        {resultFilterList.length > 0 ? (
-          resultFilterList.map((f: string, index: number) => {
-            return (
-              <ListItem button onClick={handleClickList(f)} key={index}>
-                <ListItemText primary={f} />
-              </ListItem>
-            );
-          })
-        ) : (
-          <ListItem>
-            <ListItemText primary={'No more options'} />
-          </ListItem>
-        )}
-      </List> */}
-      {/* <Box>
-        <Select
-          style={{ visibility: 'hidden', margin: 10 }}
-          open={openMetricList}
-          onOpen={() => {
-            console.log('workingg')
-            setTimeout(()=>{
-              if (filterInputRef && filterInputRef.current) {
-                console.log('working00000')
-                filterInputRef.current.focus();
-              }
-            }, 500)
-          
-          }}
-          onClose={handleClose('list')}
-          // onOpen={this.handleOpen}
-          value={filters[filters.length - 1]}
-          onChange={handleChange('list')}
-        >
-          {resultFilterList.length > 0 ? (
-            resultFilterList.map((f: string, index: number) => {
-              return (
-                <MenuItem value={f} key={index}>
-                  {f}
-                </MenuItem>
-              );
-            })
-          ) : (
-            <MenuItem value={0}>No option</MenuItem>
-          )}
-        </Select>
-      </Box> */}
     </div>
   );
 };
