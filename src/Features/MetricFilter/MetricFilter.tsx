@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   searchBox: {
-    minHeight: 50,
+    minHeight: 30,
     width: '20rem',
     borderColor: grey[400],
     borderRadius: 5,
