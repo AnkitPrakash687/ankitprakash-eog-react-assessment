@@ -12,6 +12,8 @@ import { IState } from '../../store';
 import Box from '@material-ui/core/Box';
 import grey from '@material-ui/core/colors/grey';
 import blue from '@material-ui/core/colors/blue';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const client = createClient({
   url: 'https://react.eogresources.com/graphql',
@@ -31,6 +33,7 @@ const useStyles = makeStyles(theme => ({
     margin: '5px',
   },
   filterInput: {
+    width: '20rem',
     padding: theme.spacing(1),
     border: 'none',
     backgroundColor: 'transparent',
@@ -109,8 +112,15 @@ const MetricFilter = () => {
   const { fetching, data, error } = result;
 
   useEffect(() => {
-    document.addEventListener('keyup', keyUpFunc, false);
-  });
+    // document.addEventListener('keyup', keyUpFunc, false);
+    if (openMetricList) {
+      setTimeout(() => {
+        if (filterInputRef && filterInputRef.current) {
+          filterInputRef.current.focus();
+        }
+      }, 500);
+    }
+  }, [openMetricList]);
 
   useEffect(() => {
     const getFilteredList = (filterInput?: string) => {
@@ -135,11 +145,9 @@ const MetricFilter = () => {
     dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getFilteredList() }));
   }, [dispatch, data, error, filters]);
 
-  const keyUpFunc = (event: any) => {
-    if (event.keyCode === 27) {
-      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
-    }
-  };
+  // const keyUpFunc = (event: any) => {
+
+  // };
 
   const handleKeyUp = (name: string) => (event: any) => {
     if (event.keyCode === 46) {
@@ -147,6 +155,9 @@ const MetricFilter = () => {
       if (name !== ' ') {
         dispatch(filterActions.removeFilter({ selectedFilter: name }));
       }
+    }
+    if (event.keyCode === 27) {
+      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
     }
   };
   const handleChange = (name: string) => (event: any) => {
@@ -163,13 +174,26 @@ const MetricFilter = () => {
       }
       return result;
     };
-    let filterInput = event.target.value;
+
     if (name === 'filterInput') {
+      let filterInput = event.target.value;
       if (filterInput !== ' ') {
         dispatch(openMetricListActions.openMetricList({ openMetricList: true }));
         dispatch(resultFilterListActions.resultFilterList({ resultFilterList: getFilteredList(filterInput) }));
       }
       dispatch(filterInputActions.filterInput({ filterInput: event.target.value }));
+    } else if (name === 'list') {
+      let selectedMetric = event.target.value;
+      if (selectedMetric && selectedMetric !== '') {
+        dispatch(filterInputActions.filterInput({ filterInput: '' }));
+        dispatch(filterActions.addFilter({ selectedFilter: selectedMetric }));
+        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: data.getMetrics }));
+        dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
+
+        if (filterInputRef && filterInputRef.current) {
+          filterInputRef.current.focus();
+        }
+      }
     }
   };
 
@@ -182,22 +206,36 @@ const MetricFilter = () => {
     }
   };
 
-  const handleClickList = (name: string) => (event: any) => {
-    dispatch(filterInputActions.filterInput({ filterInput: '' }));
-    dispatch(filterActions.addFilter({ selectedFilter: name }));
-    dispatch(resultFilterListActions.resultFilterList({ resultFilterList: data.getMetrics }));
-    dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
+  const handleClickList = (event: any) => {
+    console.log('working');
+    event.preventDefault();
+    if (event.target.value) {
+      if (event.target.value === 'No options') {
+        if (filterInputRef && filterInputRef.current) {
+          filterInputRef.current.value = '';
+          filterInputRef.current.focus();
+        }
+      }
+      console.log(event.target.value);
+      if (resultFilterList.includes(event.target.value)) {
+        dispatch(filterInputActions.filterInput({ filterInput: '' }));
+        dispatch(filterActions.addFilter({ selectedFilter: event.target.value }));
+        dispatch(resultFilterListActions.resultFilterList({ resultFilterList: data.getMetrics }));
+        dispatch(openMetricListActions.openMetricList({ openMetricList: !openMetricList }));
 
-    if (filterInputRef && filterInputRef.current) {
-      filterInputRef.current.focus();
+        if (filterInputRef && filterInputRef.current) {
+          filterInputRef.current.value = '';
+          filterInputRef.current.focus();
+        }
+      }
     }
   };
 
-  // const handleClose = (name: string) => (event: any) => {
-  //   if (name === 'list') {
-  //     dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
-  //   }
-  // };
+  const handleClose = (name: string) => (event: any) => {
+    if (name === 'list') {
+      dispatch(openMetricListActions.openMetricList({ openMetricList: false }));
+    }
+  };
 
   const handleDeleteList = (name: string) => (event: any) => {
     dispatch(filterActions.removeFilter({ selectedFilter: name }));
@@ -210,7 +248,7 @@ const MetricFilter = () => {
 
   return (
     <div>
-      <Box id="searchBox" className={classes.searchBox} onClick={handleClick('filterInput')}>
+      <Box id="searchBox" alignItems="flex-end" className={classes.searchBox} onClick={handleClick('filterInput')}>
         <Box className={classes.selectedFilterContainer}>
           {filters.map((f: string, index: number) => {
             if (f !== '') {
@@ -234,20 +272,34 @@ const MetricFilter = () => {
             </Box>
           )}
 
-          <Box justifyContent="center">
+          <Box>
             <input
               className={classes.filterInput}
               ref={filterInputRef}
-              onChange={handleChange('filterInput')}
+              // onChange={handleChange('filterInput')}
+              onInput={handleClickList}
               onKeyUp={handleKeyUp('filterInput')}
               type="text"
+              list="metricList"
               placeholder="Search Metrics..."
             ></input>
           </Box>
         </Box>
       </Box>
-      <label htmlFor="searchBox">press delete to remove last filters</label>
-      <List className={classes.list} style={{ display: openMetricList ? 'block' : 'none' }}>
+      <Box>
+        <label htmlFor="searchBox">press delete to remove last filters</label>
+      </Box>
+      <datalist id="metricList">
+        {resultFilterList.length > 0 ? (
+          resultFilterList.map((f: string, index: number) => {
+            return <option value={f} key={index}></option>;
+          })
+        ) : (
+          <option value={'No options'} key={0}></option>
+        )}
+      </datalist>
+
+      {/* <List className={classes.list} style={{ display: openMetricList ? 'block' : 'none' }}>
         {resultFilterList.length > 0 ? (
           resultFilterList.map((f: string, index: number) => {
             return (
@@ -261,7 +313,39 @@ const MetricFilter = () => {
             <ListItemText primary={'No more options'} />
           </ListItem>
         )}
-      </List>
+      </List> */}
+      {/* <Box>
+        <Select
+          style={{ visibility: 'hidden', margin: 10 }}
+          open={openMetricList}
+          onOpen={() => {
+            console.log('workingg')
+            setTimeout(()=>{
+              if (filterInputRef && filterInputRef.current) {
+                console.log('working00000')
+                filterInputRef.current.focus();
+              }
+            }, 500)
+          
+          }}
+          onClose={handleClose('list')}
+          // onOpen={this.handleOpen}
+          value={filters[filters.length - 1]}
+          onChange={handleChange('list')}
+        >
+          {resultFilterList.length > 0 ? (
+            resultFilterList.map((f: string, index: number) => {
+              return (
+                <MenuItem value={f} key={index}>
+                  {f}
+                </MenuItem>
+              );
+            })
+          ) : (
+            <MenuItem value={0}>No option</MenuItem>
+          )}
+        </Select>
+      </Box> */}
     </div>
   );
 };
