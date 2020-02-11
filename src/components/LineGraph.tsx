@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useQuery } from 'urql';
 import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
 
 type LineGraphProps = {
   metricName: string;
+  newData: any;
 };
 
 const SECONDS = 30 * 60,
@@ -29,38 +30,42 @@ query($metricName: String!, $after: Timestamp) {
 }
 `;
 
-export default ({ metricName }: LineGraphProps) => {
-  const [{ data }, executeQuery] = useQuery({
+export default ({ metricName, newData }: LineGraphProps) => {
+  //console.log(result.data);
+  const [{ data }] = useQuery({
     query: query,
     variables: {
       metricName: metricName,
       after: timestamp,
     },
   });
-
-  useEffect(() => {
-    executeQuery({ requestPolicy: 'cache-and-network', pollInterval: 2500 });
-  }, [executeQuery]);
-
   if (data) {
-    let metrics = data.getMeasurements.map((m: any) => {
-      return { at: convertToTime(m.at), metricName: m.metric, value: m.value };
-    });
-    return (
-      <LineChart
-        syncId={1}
-        width={500}
-        height={350}
-        data={metrics.slice(dataLength * -1)}
-        margin={{ top: 5, right: 20, bottom: 5, left: -5 }}
-      >
-        <Line isAnimationActive={false} type="linear" dot={false} dataKey="value" stroke="#8884d8" />
-        <XAxis minTickGap={40} interval="preserveEnd" type="category" dataKey="at" />
-        <YAxis domain={['auto', 'auto']} />
-        <YAxis />
-        <Tooltip animationDuration={500} />
-      </LineChart>
-    );
+    console.log('newData', [...data.getMeasurements, ...newData].length);
   }
-  return <div></div>;
+  return (
+    <LineChart
+      syncId={1}
+      width={500}
+      height={350}
+      data={
+        data &&
+        [...data.getMeasurements, ...newData]
+          .map((f: any) => {
+            return {
+              at: convertToTime(f.at),
+              metricName: f.metric,
+              value: f.value,
+            };
+          })
+          .slice(dataLength * -1)
+      }
+      margin={{ top: 5, right: 20, bottom: 5, left: -5 }}
+    >
+      <Line isAnimationActive={false} type="linear" dot={false} dataKey="value" stroke="#8884d8" />
+      <XAxis minTickGap={10} type="category" dataKey="at" />
+      <YAxis domain={['auto', 'auto']} />
+      <YAxis />
+      <Tooltip animationDuration={500} />
+    </LineChart>
+  );
 };
