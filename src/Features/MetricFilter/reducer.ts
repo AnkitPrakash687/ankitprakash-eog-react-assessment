@@ -25,13 +25,8 @@ const filterSlice = createSlice({
   name: 'filter',
   initialState: initialState,
   reducers: {
-
     setFilter: (state, action: PayloadAction<{filters:string[]}>) => {
         state.filters = action.payload.filters
-    },
-
-    clearAll: (state) => {
-      state.filters = [''];
     },
     filterApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },

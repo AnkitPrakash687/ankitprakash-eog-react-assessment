@@ -39,9 +39,9 @@ export default ({ metricName, newData }: LineGraphProps) => {
       after: timestamp,
     },
   });
-  if (data) {
-    console.log('newData', [...data.getMeasurements, ...newData].length);
-  }
+  // if (data) {
+  //   console.log('newData', [...data.getMeasurements, ...newData].length);
+  // }
   return (
     <LineChart
       syncId={1}

@@ -13,36 +13,10 @@ const client = createClient({
 });
 
 const useStyles = makeStyles(theme => ({
-  list: {
-    width: '20rem',
-    background: 'white',
-    position: 'absolute',
-    zIndex: 1,
-    opacity: 0.9,
-    margin: theme.spacing(1, 1, 1, 1),
-    borderRadius: '5px',
-  },
-  chip: {
-    margin: '5px',
-  },
-  filterInput: {
-    width: '20rem',
-    padding: theme.spacing(1),
-    border: 'none',
-    backgroundColor: 'transparent',
-    '&:focus': {
-      outline: 'none !important',
-    },
-  },
   searchBox: {
     minHeight: 30,
-    width: '20rem',
+    width: '22rem',
     display: 'flex',
-    flexDirection: 'row',
-  },
-  selectedFilterContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
     flexDirection: 'row',
   },
 }));
@@ -117,7 +91,8 @@ const MetricFilter = () => {
   const handleChange = (name: string) => (event: any, value: any) => {
     if (name === 'metricFilter') {
       console.log(value)
-      dispatch(filterActions.setFilter({ filters: value }));
+      let filters = value.filter((metric:string)=>{ return metric !== ''})
+      dispatch(filterActions.setFilter({ filters: filters }));
     }
   };
 
@@ -138,7 +113,6 @@ const MetricFilter = () => {
         className={classes.searchBox}
         multiple
         autoHighlight
-        autoSelect
         id="metric-filter"
         options={data.getMetrics}
         filterSelectedOptions
