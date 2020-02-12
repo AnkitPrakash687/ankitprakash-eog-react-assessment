@@ -15,7 +15,7 @@ const SECONDS = 30 * 60,
   RATE = 1.3;
 const dataLength = Math.floor(SECONDS / RATE);
 
-const subscriptionClient = new SubscriptionClient('ws://react.eogresources.com/graphql', {
+const subscriptionClient = new SubscriptionClient('wss://react.eogresources.com/graphql', {
   reconnect: true,
 });
 
