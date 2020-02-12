@@ -83,7 +83,7 @@ const MetricGraph = () => {
 
   return (
     <>
-      {filters.length > 0 ? (
+      {filters.length > 0 && filters[0] !== '' ? (
         <Box display="flex" m={2} flexDirection="row" flexWrap="wrap" className={classes.root}>
           {filters.map((filter, index) => {
             if (filter !== '') {
