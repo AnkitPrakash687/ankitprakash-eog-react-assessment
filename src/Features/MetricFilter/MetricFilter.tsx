@@ -118,7 +118,7 @@ const MetricFilter = () => {
         filterSelectedOptions
         onChange={handleChange('metricFilter')}
         renderInput={params => (
-          <TextField {...params} variant="outlined" placeholder="Select Metrics..." fullWidth />
+          <TextField {...params} margin="dense" variant="outlined" placeholder="Select Metrics..." fullWidth />
         )}
       />
   
